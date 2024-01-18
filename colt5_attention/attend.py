@@ -89,14 +89,14 @@ class Attend(nn.Module):
         config = self.cuda_config if is_cuda else self.cpu_config
 
         # pytorch 2.0 flash attn: q, k, v, mask, dropout, causal, softmax_scale
-
-        with torch.backends.cuda.sdp_kernel(**config._asdict()):
-            out = F.scaled_dot_product_attention(
-                q, k, v,
-                attn_mask = mask,
-                dropout_p = self.dropout if self.training else 0., 
-                is_causal = self.causal
-            )
+        with torch.cuda.amp.autocast(enabled=True, dtype=torch.bfloat16):
+            with torch.backends.cuda.sdp_kernel(**config._asdict()):
+                out = F.scaled_dot_product_attention(
+                    q, k, v,
+                    attn_mask = mask,
+                    dropout_p = self.dropout if self.training else 0., 
+                    is_causal = self.causal
+                )
 
         return out
 
