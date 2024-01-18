@@ -638,8 +638,9 @@ class ConditionalRoutedAttention(nn.Module):
         num_heavy_tokens_kv = default(num_heavy_tokens_kv, self.num_heavy_tokens_kv)
 
         # light local attention sees all tokens in a limited context
-
-        light_out = self.light_attn(x, mask = mask)
+        with torch.cuda.amp.autocast(enabled=False):
+            x = x.to(torch.bfloat16)
+            light_out = self.light_attn(x, mask = mask)
 
         # route tokens appropriately for heavy branch
 
