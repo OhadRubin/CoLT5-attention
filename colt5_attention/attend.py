@@ -87,9 +87,9 @@ class Attend(nn.Module):
         # Check if there is a compatible device for flash attention
 
         config = self.cuda_config if is_cuda else self.cpu_config
-
         # pytorch 2.0 flash attn: q, k, v, mask, dropout, causal, softmax_scale
-        with torch.cuda.amp.autocast(enabled=True, dtype=torch.bfloat16):
+        with torch.cuda.amp.autocast(enabled=False):
+            q, k, v = q.to(torch.bfloat16),k.to(torch.bfloat16),v.to(torch.bfloat16)
             with torch.backends.cuda.sdp_kernel(**config._asdict()):
                 out = F.scaled_dot_product_attention(
                     q, k, v,
