@@ -1163,7 +1163,8 @@ class ConditionalRoutedTransformerBlock(nn.Module):
         multiply_queries_by_score = False,
         use_triton = False,
         use_null_q_tokens = True,
-        use_flash_attn = False
+        use_flash_attn = False,
+        rotary_emb=False,
     ):
         super().__init__()
         self.conditional_ff = ConditionalRoutedFeedForward(
@@ -1192,7 +1193,8 @@ class ConditionalRoutedTransformerBlock(nn.Module):
             multiply_queries_by_score = multiply_queries_by_score,
             use_triton = use_triton,
             use_null_q_tokens = use_null_q_tokens,
-            use_flash_attn = use_flash_attn
+            use_flash_attn = use_flash_attn,
+            rotary_emb=rotary_emb,
         )
 
     def forward(
