@@ -582,13 +582,13 @@ class ConditionalRoutedAttention(nn.Module):
         self.num_heavy_tokens_kv = num_heavy_tokens_kv
 
         self.multiply_queries_by_score = multiply_queries_by_score
-
+        self.norm = nn.LayerNorm(dim)
         self.light_attn = LocalMHA(
             dim = dim,
             dim_head = light_dim_head,
             heads = light_heads,
             window_size = light_window_size // 2,
-            prenorm = True,
+            prenorm = False,
             causal = False,
             use_rotary_pos_emb = False,
             look_backward = 1,
@@ -639,7 +639,9 @@ class ConditionalRoutedAttention(nn.Module):
 
         # light local attention sees all tokens in a limited context
             # x = x.to()
-        with torch.cuda.amp.autocast(enabled=True,dtype=torch.bfloat16):
+        # with torch.cuda.amp.autocast(enabled=True,dtype=torch.bfloat16):
+        x = self.norm(x.to(torch.bfloat16))
+        with torch.cuda.amp.autocast(enabled=False):
             light_out = self.light_attn(x, mask = mask)
 
         # route tokens appropriately for heavy branch
