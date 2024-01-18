@@ -432,16 +432,17 @@ class CoordinateDescentRouter(nn.Module):
         effective_k = min(num_tokens * self.fetch_k_ratio, n)
 
         # coordinate descent
-
-        scores = self.coor_descent(
-            s,
-            n_iters = self.n_iters,
-            mask = mask,
-            k = effective_k,
-            eps = eps,
-            eps_init = eps_init,
-            eps_decay = eps_decay
-        )
+        
+        with torch.cuda.amp.autocast(enabled=False):
+            scores = self.coor_descent(
+                s.to(torch.float32),
+                n_iters = self.n_iters,
+                mask = mask,
+                k = effective_k,
+                eps = eps,
+                eps_init = eps_init,
+                eps_decay = eps_decay
+            )
 
         # force random routing, if negative control
 
